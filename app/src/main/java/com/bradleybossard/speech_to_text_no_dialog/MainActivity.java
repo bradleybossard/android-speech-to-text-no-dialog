@@ -1,10 +1,10 @@
 package com.bradleybossard.speech_to_text_no_dialog;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.support.v7.app.ActionBarActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -14,39 +14,43 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
-import java.util.ArrayList;
 
-
+//public class MainActivity extends ActionBarActivity implements RecognitionListener {
 public class MainActivity extends ActionBarActivity {
+
+    private String LOG_TAG = "VoiceRecognitionActivity";
 
     private TextView returnedText;
     private ToggleButton toggleButton;
     private ProgressBar progressBar;
     private SpeechRecognizer speech = null;
     private Intent recognizerIntent;
-    private String LOG_TAG = "VoiceRecognitionActivity";
+
+    private NewRecognitionListener recognitionListener = null;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Log.i(LOG_TAG, "onCreate");
+
         setContentView(R.layout.activity_main);
         returnedText = (TextView) findViewById(R.id.textView1);
         progressBar = (ProgressBar) findViewById(R.id.progressBar1);
         toggleButton = (ToggleButton) findViewById(R.id.toggleButton1);
 
         progressBar.setVisibility(View.INVISIBLE);
+/*
         speech = SpeechRecognizer.createSpeechRecognizer(this);
         speech.setRecognitionListener(this);
         recognizerIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE,
-                "en");
-        recognizerIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE,
-                this.getPackageName());
+        recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, "en");
+        recognizerIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, this.getPackageName());
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
                 RecognizerIntent.LANGUAGE_MODEL_WEB_SEARCH);
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3);
-
+*/
         toggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
             @Override
@@ -56,16 +60,31 @@ public class MainActivity extends ActionBarActivity {
                     progressBar.setVisibility(View.VISIBLE);
                     progressBar.setIndeterminate(true);
                     Log.i(LOG_TAG, "Start Listening");
+
+                    recognitionListener = new NewRecognitionListener();
+
+                    //speech = SpeechRecognizer.createSpeechRecognizer(this);
+                    speech = SpeechRecognizer.createSpeechRecognizer(getApplicationContext());
+                    speech.setRecognitionListener(recognitionListener);
+                    recognizerIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+                    recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, "en");
+                    recognizerIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, getApplicationContext().getPackageName());
+                    recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                            RecognizerIntent.LANGUAGE_MODEL_WEB_SEARCH);
+                    recognizerIntent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3);
+
                     speech.startListening(recognizerIntent);
                 } else {
                     progressBar.setIndeterminate(false);
                     progressBar.setVisibility(View.INVISIBLE);
                     Log.i(LOG_TAG, "Stop Listening");
+                    //speech.stopListening();
                     speech.stopListening();
+                    speech.cancel();
+                    speech.destroy();
                 }
             }
         });
-
     }
 
 
@@ -107,6 +126,7 @@ public class MainActivity extends ActionBarActivity {
 
     }
 
+/*
     @Override
     public void onBeginningOfSpeech() {
         Log.i(LOG_TAG, "onBeginningOfSpeech");
@@ -203,4 +223,5 @@ public class MainActivity extends ActionBarActivity {
         }
         return message;
     }
+*/
 }
